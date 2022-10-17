@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\ContatoController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PrincipalController;
+use App\Http\Controllers\SobreNosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,14 +19,12 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/', function () {
-    return 'Ola seja bem vindo.';
-});
+Route::get('/', [PrincipalController::class,'principal']);
 
-Route::get('/sobre-nos', function () {
-    return 'Ola seja bem vindo. sobre nos';
-});
+Route::get('/sobre-nos',[SobreNosController::class,'sobreNos']);
 
-Route::get('/contato', function () {
-    return 'Ola seja bem vindo. contato';
-});
+Route::get('/contato', [ContatoController::class,'contato']);
+
+Route::get('/contato/{nome}/{opcional}' , function(string $nome,int $id) { 
+    echo 'Estamos aqui:'.$nome.' - '.$id;
+})->where('opcional','[0-9]+')->where('nome','[A-Za-z]+');
