@@ -2,12 +2,12 @@
 
 <ul>
     <li>
-        <a href="/app_super_gestao/public/">Principal</a>
+        <a href="{{route('site.index')}}">Principal</a>
     </li>
     <li>
-        <a href="/app_super_gestao/public/sobre-nos">Sobre Nos</a>
+        <a href="{{route('site.sobrenos')}}">Sobre Nos</a>
     </li>
     <li>
-        <a href="/app_super_gestao/public/contato">Contato</a>
+        <a href="{{route('site.contato')}}">Contato</a>
     </li>
 </ul>
