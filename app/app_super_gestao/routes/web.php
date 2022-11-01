@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PrincipalController;
 use App\Http\Controllers\SobreNosController;
 use App\Http\Controllers\TesteController;
-use App\Http\Middleware\LogAcessoMiddleware;
+use App\Http\Controllers\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,8 +22,7 @@ use App\Http\Middleware\LogAcessoMiddleware;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::middleware(LogAcessoMiddleware::class)
-    ->get('/', [PrincipalController::class,'principal'])
+Route::get('/', [PrincipalController::class,'principal'])
     ->name('site.index');
 
 Route::get('/sobre-nos',[SobreNosController::class,'sobreNos'])->name('site.sobrenos');
@@ -31,7 +30,8 @@ Route::get('/sobre-nos',[SobreNosController::class,'sobreNos'])->name('site.sobr
 Route::get('/contato', [ContatoController::class,'contato'])->name('site.contato');
 Route::post('/contato', [ContatoController::class,'salvar'])->name('site.contato');
 
-Route::get('/login', function() { return 'Login'; })->name('site.login');
+Route::get('/login', [LoginController::class,'index'])->name('site.login');
+Route::post('/login', [LoginController::class,'autenticar'])->name('site.login');
 
 Route::get('/contato/{nome}/{opcional}' , function(string $nome,int $id) { 
     echo 'Estamos aqui:'.$nome.' - '.$id;
