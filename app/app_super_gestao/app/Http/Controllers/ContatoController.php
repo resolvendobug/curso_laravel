@@ -64,5 +64,10 @@ class ContatoController extends Controller
         //realizar a validacao do formulario na variavel request
        SiteContato::create($request->all());
        return redirect()->route('site.index');
+
+
     }
+
+        
+
 }
