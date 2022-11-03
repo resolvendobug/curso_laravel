@@ -8,17 +8,22 @@ use App\Models\User;
 class LoginController extends Controller
 {
     //
-    public function index(Request $request){
+    public function index(Request $request)
+    {
 
         $erro = $request->get('erro');
-        if($erro == 1){
+        if ($erro == 1) {
             $erro = 'Usuário ou senha invalidos';
         }
-        return view('site.login', ['titulo' => 'Login' , 'erro' => $erro]);
+        if ($erro == 2) {
+            $erro = 'Nescessario realizar login';
+        }
+        return view('site.login', ['titulo' => 'Login', 'erro' => $erro]);
     }
 
-    public function autenticar(Request $request){
-        
+    public function autenticar(Request $request)
+    {
+
         $regras = [
             'usuario' => 'email',
             'senha' => 'required'
@@ -39,18 +44,28 @@ class LoginController extends Controller
         $user = new User();
 
         $usuario = $user->where('email', $email)
-                    ->where('password', $password
-                    )->get()
-                    ->first();
+            ->where(
+                'password',
+                $password
+            )->get()
+            ->first();
 
-        if(isset($usuario->name)){
-            echo "Usuário autenticado com sucesso";
-        }else
-        {
+        if (isset($usuario->name)) {
+
+            session_start();
+            $_SESSION['nome'] = $usuario->name;
+            $_SESSION['email'] = $usuario->email;
+            return redirect()->route('app.home');
+        } else {
             return redirect()->route('site.login', ['erro' => 1]);
         }
 
         print_r($request->all());
-
     }
+
+    public function sair(){
+        session_destroy();
+        return redirect()->route('site.index');
+    }
+
 }
