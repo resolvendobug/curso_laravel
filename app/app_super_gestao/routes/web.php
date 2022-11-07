@@ -10,6 +10,7 @@ use App\Http\Controllers\SobreNosController;
 use App\Http\Controllers\TesteController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProdutoController;
+use App\Http\Controllers\ProdutoDetalheController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,8 @@ Route::middleware('autenticacao:padrao,visitante')->prefix('/app')->group( funct
     Route::get('/fornecedor/excluir/{id}',[FornecedorController::class,'excluir'])->name('app.fornecedor.excluir');
 
     Route::get('/produto',[ProdutoController::class,'index'])->name('app.produto');
+    Route::resource('produto',ProdutoController::class);
+    Route::resource('produto-detalhe',ProdutoDetalheController::class);
 
 });
 
