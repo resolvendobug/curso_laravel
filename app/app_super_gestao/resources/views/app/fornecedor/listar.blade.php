@@ -35,6 +35,16 @@
                             <td><a href="{{ route('app.fornecedor.excluir' , $fornecedor->id) }}">Excluir</a></td>
                             <td><a href="{{ route('app.fornecedor.editar' , $fornecedor->id) }}">Editar</a></td>
                         </tr>
+                        <tr>
+                            <td colspan="6">
+                                <p>Produtos</p>
+                                <ul>
+                                    @foreach ($fornecedor->produtos as $produto)
+                                        <li>{{ $produto->nome }}</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                        </tr>
                         @endforeach
                     </table>
                     {{ $fornecedores->appends($request)->links() }}

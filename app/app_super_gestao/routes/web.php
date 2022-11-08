@@ -11,6 +11,8 @@ use App\Http\Controllers\TesteController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\ProdutoDetalheController;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\PedidoProdutoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +47,7 @@ Route::get('/contato/{nome}/{opcional}' , function(string $nome,int $id) {
 Route::middleware('autenticacao:padrao,visitante')->prefix('/app')->group( function(){
     Route::get('/home', [HomeController::class , 'index'] )->name('app.home');
     Route::get('/sair', [LoginController::class,'sair'])->name('app.sair');
-    Route::get('/cliente', [ClienteController::class, 'index'] )->name('app.cliente');
+    
     Route::get('/fornecedor',[FornecedorController::class,'index'])->name('app.fornecedor');
     Route::post('/fornecedor/listar',[FornecedorController::class,'listar'])->name('app.fornecedor.listar');
     Route::get('/fornecedor/listar',[FornecedorController::class,'listar'])->name('app.fornecedor.listar');
@@ -57,6 +59,10 @@ Route::middleware('autenticacao:padrao,visitante')->prefix('/app')->group( funct
     Route::get('/produto',[ProdutoController::class,'index'])->name('app.produto');
     Route::resource('produto',ProdutoController::class);
     Route::resource('produto-detalhe',ProdutoDetalheController::class);
+
+    Route::resource('cliente',ClienteController::class);
+    Route::resource('pedido',PedidoController::class);
+    Route::resource('pedido-produto',PedidoProdutoController::class);
 
 });
 

@@ -5,6 +5,14 @@
         <form method="POST" action="{{ route('produto.store') }}">
 @endif
 @csrf
+
+<select name="fornecedor_id">
+    <option value="">Selecione um fornecedor</option>
+    @foreach ($fornecedores as $fornecedor)
+        <option value="{{ $fornecedor->id }}" {{ $produto->fornecedor_id ?? old('fornecedor_id') == $fornecedor->id ? 'selected' : '' }}>{{ $fornecedor->nome }}</option>
+    @endforeach
+</select>
+
 <input type="text" name="nome" value="{{ $produto->nome ?? old('nome') }}" placeholder="Nome" class="borda-preta">
 {{ $errors->has('nome') ? $errors->first('nome') : '' }}
 <input type="text" name="descricao" value="{{ $produto->descricao ?? old('descricao') }}" placeholder="Descrição"
