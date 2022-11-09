@@ -43,18 +43,29 @@ class PedidoProdutoController extends Controller
         //
         $regras = [
             'produto_id' => 'exists:produtos,id',
+            'quantidade' => 'required'
             
         ];
         $feedback = [
             'produto_id.exists' => 'O produto informado não existe',
+            'required' => 'O campo :attribute deve possuir um valor',
         ];
         
         $request->validate($regras, $feedback);
 
+        /*
         $pedidoProduto = new PedidoProduto();
         $pedidoProduto->pedido_id = $pedido->id;
         $pedidoProduto->produto_id = $request->get('produto_id');
+        $pedidoProduto->quantidade = $request->get('quantidade');
         $pedidoProduto->save();
+        */
+
+        $pedido->produtos()->attach(
+            $request->get('produto_id'),
+            ['quantidade' => $request->get('quantidade')]
+        );
+        
         
         return redirect()->route('pedido-produto.create', ['pedido' => $pedido->id]);
     }
@@ -97,11 +108,25 @@ class PedidoProdutoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int  PedidoProduto $id
+     * @param  int  $pedido_id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(PedidoProduto $pedidoProduto, $pedido_id)
     {
-        //
+        //convencional
+        /*PedidoProduto::where([
+            'pedido_id' => $pedido->id,
+            'produto_id'=> $produto->id
+        ])->delete();
+        */
+
+        //detach delete pelo relacionamento
+       // $pedido->produtos()->detach($produto->id);
+
+       $pedidoProduto->delete();
+
+        return redirect()->route('pedido-produto.create', ['pedido' => $pedido_id]);
+
     }
 }
