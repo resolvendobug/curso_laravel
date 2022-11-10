@@ -27,4 +27,7 @@ RUN echo 'date.timezone="America/Sao_Paulo"' >> /usr/local/etc/php/conf.d/date.i
     
 # Enable Apache2 modules
 RUN a2enmod rewrite
-    
+
+# nodejs install
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs
