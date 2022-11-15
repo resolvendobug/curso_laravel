@@ -20,6 +20,10 @@ RUN apt-get install zip unzip \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && unlink composer-setup.php
 
+RUN apt-get install libzip-dev -y \
+    && docker-php-ext-install zip   
+
+
 RUN echo 'date.timezone="America/Sao_Paulo"' >> /usr/local/etc/php/conf.d/date.ini \
     && echo 'opcache.enable=1' >> /usr/local/etc/php/conf.d/opcache.conf \
     && echo 'opcache.validate_timestamps=1' >> /usr/local/etc/php/conf.d/opcache.conf \

@@ -1,17 +1,21 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Mail;
 use App\Mail\NovaTarefaMail;
 use App\Models\Tarefa;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TarefasExport;
+use PDF;
 
 class TarefaController extends Controller
 {
 
     public function __construct()
     {
-       // $this->middleware('auth');
+        // $this->middleware('auth');
     }
 
     /**
@@ -22,7 +26,7 @@ class TarefaController extends Controller
     public function index()
     {
         $user_id = auth()->user()->id;
-        $tarefas = Tarefa::where('user_id',$user_id)->paginate(10);
+        $tarefas = Tarefa::where('user_id', $user_id)->paginate(10);
         return view('tarefa.index', ['tarefas' => $tarefas]);
     }
 
@@ -65,7 +69,6 @@ class TarefaController extends Controller
     {
         //
         return view('tarefa.show', ['tarefa' => $tarefa]);
-
     }
 
     /**
@@ -78,12 +81,11 @@ class TarefaController extends Controller
     {
         //
         $user_id = auth()->user()->id;
-        if($user_id != $tarefa->user_id){
-            return view('acesso-negado');           
+        if ($user_id != $tarefa->user_id) {
+            return view('acesso-negado');
         }
-       
+
         return view('tarefa.edit', ['tarefa' => $tarefa]);
-        
     }
 
     /**
@@ -97,8 +99,8 @@ class TarefaController extends Controller
     {
         //
         $user_id = auth()->user()->id;
-        if($user_id != $tarefa->user_id){
-            return view('acesso-negado');           
+        if ($user_id != $tarefa->user_id) {
+            return view('acesso-negado');
         }
 
         $tarefa->update($request->all());
@@ -115,11 +117,35 @@ class TarefaController extends Controller
     {
         //
         $user_id = auth()->user()->id;
-        if($user_id != $tarefa->user_id){
-            return view('acesso-negado');           
+        if ($user_id != $tarefa->user_id) {
+            return view('acesso-negado');
         }
         $tarefa->delete();
         return redirect()->route('tarefa.index');
+    }
+
+    public function exportacao($extensao)
+    {
+        $nome_arquivo = "lista_tarefas";
+
+        if(in_array($extensao , ['xlsx','csv','pdf']))
+        {
+            return Excel::download(new TarefasExport, $nome_arquivo.'.'.$extensao);
+        }
+
+            return redirect()->route('tarefa.index');
         
+    }
+
+    public function exportar()
+    {
+        $tarefas = auth()->user()->tarefas()->get();
+        $pdf = PDF::loadView('tarefa.pdf', ['tarefas' => $tarefas]);
+
+        //tipo de papel , letter
+        $pdf->setPaper('a4', 'landscape');
+
+        //return $pdf->download('lista_de_tarefas.pdf');
+        return $pdf->stream('lista_de_tarefas.pdf');
     }
 }
