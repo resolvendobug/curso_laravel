@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MarcaController extends Controller
 {
@@ -47,10 +48,19 @@ class MarcaController extends Controller
         //
         //  $marca = Marca::create($request->all());
 
+        
+
         $request->validate($this->marca->rules(), $this->marca->feedback());
 
+        $image = $request->file('imagem');
+        $imagem_urn = $image->store('imagens','public');
 
-        $marca = $this->marca->create($request->all());
+        $marca = $this->marca->create(
+            [
+                'nome' => $request->nome,
+                'imagem' => $imagem_urn
+            ]
+        );
         return $marca;
     }
 
@@ -110,8 +120,21 @@ class MarcaController extends Controller
             $request->validate($marca->rules(), $marca->feedback());
         }
 
+        //remove o arquivo antigo , caso um arquivo novo tenha sido enviado
+        if($request->file('imagem')){
+            Storage::disk('public')->delete($marca->imagem);
+        }
 
-        $marca->update($request->all());
+        
+
+        $image = $request->file('imagem');
+        $imagem_urn = $image->store('imagens','public');
+
+       
+        $marca->update([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn
+        ]);
         return $marca;
     }
 
@@ -128,6 +151,9 @@ class MarcaController extends Controller
         if ($marca === null) {
             return response()->json(['error' => 'Recurso pesquisado não existe'], 404);
         }
+
+        Storage::disk('public')->delete($marca->imagem);
+        
         $marca->delete();
         return ['msh' => 'Marca excluída com sucesso!'];
     }
