@@ -19,11 +19,40 @@ class MarcaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $marcas = array();
+
+        if($request->has('atributos_modelos')){
+            $atributos_modelos = 'modelos:id,'.$request->atributos_modelos;
+            $marcas = $this->marca->with($atributos_modelos);
+        }else{
+            $marcas = $this->marca->with('modelos');
+        }
+
+        if($request->has('filtro')){
+
+            $filtros = explode(';',$request->filtro);
+            foreach($filtros as $key => $condicao){
+                $c = explode(':',$condicao);
+                $marcas = $marcas->where($c[0],$c[1],$c[2]);
+            }
+
+            // $condicoes = explode(':', $request->filtro);
+            // $modelos = $modelos->where($condicoes[0], $condicoes[1], $condicoes[2]);
+        }
+
+        if ($request->has('atributos')) {
+            $atributos = $request->atributos;
+            
+            $marcas =  $marcas->selectRaw($atributos)->get();
+        } else {
+            $marcas = $marcas->get();
+        }
+
         //$marcas = Marca::all();
-        $marcas = $this->marca->all();
+       // $marcas = $this->marca->with('modelos')->get();
         return $marcas;
     }
 
@@ -73,7 +102,7 @@ class MarcaController extends Controller
     public function show($id)
     {
         //
-        $marca = $this->marca->find($id);
+        $marca = $this->marca->with('modelos')->find($id);
         if ($marca === null) {
             return response()->json(['error' => 'Recurso pesquisado não existe'], 404);
         }
@@ -130,11 +159,15 @@ class MarcaController extends Controller
         $image = $request->file('imagem');
         $imagem_urn = $image->store('imagens','public');
 
+        $marca->fill($request->all());
+        $marca->imagem = $imagem_urn;
+        $marca->save();
        
-        $marca->update([
-            'nome' => $request->nome,
-            'imagem' => $imagem_urn
-        ]);
+        // $marca->update([
+        //     'nome' => $request->nome,
+        //     'imagem' => $imagem_urn
+        // ]);
+
         return $marca;
     }
 
