@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Modelo;
+use App\Repositories\ModeloRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,6 +22,34 @@ class ModeloController extends Controller
      */
     public function index(Request $request)
     {
+
+        $modeloRepository = new ModeloRepository($this->modelo);
+
+        if($request->has('atributos_marca')){
+            $atributos_marca = 'marca:id,'.$request->atributos_marca;
+            $modeloRepository->selectAtributosRegistrosRelacionados($atributos_marca);
+
+            
+        }else{
+            $modeloRepository->selectAtributosRegistrosRelacionados('marca');
+        }
+
+        if($request->has('filtro')){
+
+            $modeloRepository->filtro($request->filtro);
+
+            // $condicoes = explode(':', $request->filtro);
+            // $modelos = $modelos->where($condicoes[0], $condicoes[1], $condicoes[2]);
+        }
+
+        if ($request->has('atributos')) {
+           $modeloRepository->selectAtributos($request->atributos);
+
+        }
+
+        return $modeloRepository->get();
+        
+        /*
         $modelos = array();
 
         if($request->has('atributos_marca')){
@@ -52,6 +81,7 @@ class ModeloController extends Controller
             $modelos = $modelos->get();
         }
         return $modelos;
+        */
     }
 
     /**
@@ -192,6 +222,6 @@ class ModeloController extends Controller
         Storage::disk('public')->delete($modelo->imagem);
 
         $modelo->delete();
-        return ['msh' => 'Modelo excluída com sucesso!'];
+        return ['msg' => 'Modelo excluída com sucesso!'];
     }
 }

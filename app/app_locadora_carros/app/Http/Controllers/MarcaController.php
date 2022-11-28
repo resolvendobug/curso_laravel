@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marca;
+use App\Repositories\MarcaRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,7 +22,36 @@ class MarcaController extends Controller
      */
     public function index(Request $request)
     {
+
+        $marcaRepository = new MarcaRepository($this->marca);
+
+        if($request->has('atributos_modelos')){
+            $atributos_modelos = 'modelos:id,'.$request->atributos_modelos;
+            $marcaRepository->selectAtributosRegistrosRelacionados($atributos_modelos);
+
+            
+        }else{
+            $marcaRepository->selectAtributosRegistrosRelacionados('modelos');
+        }
+
+        if($request->has('filtro')){
+
+            $marcaRepository->filtro($request->filtro);
+
+            // $condicoes = explode(':', $request->filtro);
+            // $modelos = $modelos->where($condicoes[0], $condicoes[1], $condicoes[2]);
+        }
+
+        if ($request->has('atributos')) {
+           $marcaRepository->selectAtributos($request->atributos);
+
+        }
+
+
+
+        //----------------------------------------------
         //
+        /*
         $marcas = array();
 
         if($request->has('atributos_modelos')){
@@ -53,7 +83,8 @@ class MarcaController extends Controller
 
         //$marcas = Marca::all();
        // $marcas = $this->marca->with('modelos')->get();
-        return $marcas;
+       */
+        return $marcaRepository->get();
     }
 
     /**
@@ -188,6 +219,6 @@ class MarcaController extends Controller
         Storage::disk('public')->delete($marca->imagem);
         
         $marca->delete();
-        return ['msh' => 'Marca excluída com sucesso!'];
+        return ['msg' => 'Marca excluída com sucesso!'];
     }
 }
