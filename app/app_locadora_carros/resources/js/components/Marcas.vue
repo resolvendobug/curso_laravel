@@ -4,10 +4,8 @@
             <div class="col-md-8">
 
                 <!-- inicio card buscas -->
-                <div class="card mb-3">
-                    <div class="card-header">Busca de marcas</div>
-
-                    <div class="card-body">
+                <card-component titulo="Busca de marcas">
+                    <template v-slot:conteudo>
                         <div class="row">
                             <div class="col mb-3">
                                 <input-container-component titulo="ID" id="inputId" id-help="idHelp"
@@ -27,58 +25,58 @@
 
                             </div>
                         </div>
+                    </template>
+                    <template v-slot:rodape>
+                        <button type="button" class="btn btn-primary btn-sm float-end">Pesquisar</button>
+                    </template>
 
-                    </div>
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary btn-sm float-end">Pesquisar</button>
-                    </div>
-                </div>
+                </card-component>
                 <!-- fim card buscas -->
 
                 <!-- inicio card listagem de marcas -->
-                <div class="card">
-                    <div class="card-header">Relacao de marcas</div>
-
-                    <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">First</th>
-                                    <th scope="col">Last</th>
-                                    <th scope="col">Handle</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>@mdo</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">2</th>
-                                    <td>Jacob</td>
-                                    <td>Thornton</td>
-                                    <td>@fat</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">3</th>
-                                    <td colspan="2">Larry the Bird</td>
-                                    <td>@twitter</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                    <div class="card-footer">
-                        <button type="button" class="btn btn-primary btn-sm float-end">Adicionar</button>
-                    </div>
-                </div>
-
+                <card-component titulo="Relacao de marcas">
+                    <template v-slot:conteudo>
+                        <table-component></table-component>
+                    </template>
+                    <template v-slot:rodape>
+                        <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal"
+                            data-bs-target="#modalMarca">Adicionar</button>
+                    </template>
+                </card-component>
                 <!-- fim card listagem de marcas -->
             </div>
         </div>
+
+        <!-- inicio modal -->
+        <!-- Button trigger modal -->
+
+        <!-- Modal -->
+        <modal-component id="modalMarca" titulo="Adicionar marca">
+            <template v-slot:conteudo>
+                <div class="form-group">
+                    <input-container-component titulo="Nome da marca" id="novoNome" id-help="novoNomeHelp"
+                        texto-ajuda="Informe o nome da marca">
+                        <input type="text" class="form-control" id="inputNome" aria-describedby="novoNomeHelp"
+                            placeholder="Nome da marca">
+                    </input-container-component>
+                </div>
+
+                <div class="form-group">
+                    <input-container-component titulo="Imagem" id="novoImagem" id-help="novoImagemHelp"
+                        texto-ajuda="Selecione uma imagem">
+                        <input type="file" class="form-control-file" id="novoImagem" aria-describedby="novoImagemHelp"
+                            placeholder="Seleciona uma imagem">
+                    </input-container-component>
+                </div>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary">Salvar</button>
+            </template>
+
+        </modal-component>
+        <!-- fim modal -->
+
     </div>
 </template>
 
