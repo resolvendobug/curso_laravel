@@ -36,7 +36,7 @@
                 <!-- inicio card listagem de marcas -->
                 <card-component titulo="Relacao de marcas">
                     <template v-slot:conteudo>
-                        <table-component></table-component>
+                        <table-component :dados="marcas" :titulos="['id','nome','imagem']"></table-component>
                     </template>
                     <template v-slot:rodape>
                         <button type="button" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal"
@@ -54,8 +54,10 @@
         <modal-component id="modalMarca" titulo="Adicionar marca">
 
             <template v-slot:alertas>
-                <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Cadastro realizado com sucesso." v-if="transacaoStatus == 'adicionado'"></alert-component>
-                <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar esta marca" v-if="transacaoStatus == 'erro'"></alert-component>
+                <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Cadastro realizado com sucesso."
+                    v-if="transacaoStatus == 'adicionado'"></alert-component>
+                <alert-component tipo="danger" :detalhes="transacaoDetalhes"
+                    titulo="Erro ao tentar cadastrar esta marca" v-if="transacaoStatus == 'erro'"></alert-component>
             </template>
 
             <template v-slot:conteudo>
@@ -107,10 +109,31 @@ export default {
             nomeMarca: '',
             arquivoImagem: [],
             transacaoStatus: '',
-            transacaoDetalhes: {}
+            transacaoDetalhes: {},
+            marcas: []
         }
     },
     methods: {
+
+        carregarLista() {
+
+            let config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': this.token
+                }
+            }
+
+            axios.get(this.urlbase, config)
+                .then(response => {
+                    this.marcas = response.data
+                  //  console.log(this.marcas)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        },
+
         carregarImagem(e) {
             this.arquivoImagem = e.target.files
         },
@@ -133,19 +156,22 @@ export default {
                 .then(response => {
                     this.transacaoStatus = 'adicionado'
                     this.transacaoDetalhes = {
-                        mensagem:   'ID:'+response.data.id
+                        mensagem: 'ID:' + response.data.id
                     }
                     console.log(response)
                 })
                 .catch(error => {
                     this.transacaoStatus = 'erro'
                     this.transacaoDetalhes = {
-                        mensagem:   'Erro:'+error.response.data.message,
-                        dados:   error.response.data.errors
-                    } 
+                        mensagem: 'Erro:' + error.response.data.message,
+                        dados: error.response.data.errors
+                    }
                     console.log(error.response.data.message)
                 })
         }
+    },
+    mounted() {
+        this.carregarLista()
     }
 
 }
