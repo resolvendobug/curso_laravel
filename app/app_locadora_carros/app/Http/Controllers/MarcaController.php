@@ -84,7 +84,7 @@ class MarcaController extends Controller
         //$marcas = Marca::all();
        // $marcas = $this->marca->with('modelos')->get();
        */
-        return $marcaRepository->get();
+        return $marcaRepository->getPaginado(3);
     }
 
     /**
