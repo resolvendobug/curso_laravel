@@ -4,6 +4,7 @@
             <thead>
                 <tr>
                     <th scope="col" v-for="t, key in titulos" :key="key">{{ t.titulo }}</th>
+                    <th v-if="(visualizar.visivel || atualizar || remover)"></th>
 
                 </tr>
             </thead>
@@ -16,8 +17,12 @@
                             <img :src="('/app_locadora_carros/public/storage/' + valor)" width="30">
                         </span>
                     </td>
+                    <td v-if="(visualizar.visivel || atualizar || remover)">
+                        <button class="btn btn-outline-primary btn-sm" v-if="visualizar.visivel" :data-bs-toggle="visualizar.dataToggle" :data-bs-target="visualizar.dataTarget" >Visualizar</button>
+                        <button class="btn btn-outline-success btn-sm" v-if="atualizar" >Atualizar</button>
+                        <button class="btn btn-outline-danger btn-sm" v-if="remover" >Remover</button>
+                    </td>
                 </tr>
-
 
             </tbody>
         </table>
@@ -27,7 +32,7 @@
 
 <script>
 export default {
-    props: ['dados', 'titulos'],
+    props: ['dados', 'titulos' , 'atualizar' , 'visualizar' , 'remover'],
     computed: {
         dadosFiltrados() {
 

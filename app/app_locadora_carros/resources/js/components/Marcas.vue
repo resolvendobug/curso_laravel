@@ -11,7 +11,7 @@
                                 <input-container-component titulo="ID" id="inputId" id-help="idHelp"
                                     texto-ajuda="Opcional. Informe o ID da marca">
                                     <input type="number" class="form-control" id="inputId" aria-describedby="idHelp"
-                                        placeholder="ID">
+                                        placeholder="ID" v-model="busca.id">
                                 </input-container-component>
 
                             </div>
@@ -20,14 +20,15 @@
                                 <input-container-component titulo="Nome da marca" id="inputNome" id-help="nomeHelp"
                                     texto-ajuda="Opcional. Informe o nome da marca">
                                     <input type="text" class="form-control" id="inputNome" aria-describedby="nomeHelp"
-                                        placeholder="Nome da marca">
+                                        placeholder="Nome da marca" v-model="busca.nome">
                                 </input-container-component>
 
                             </div>
                         </div>
                     </template>
                     <template v-slot:rodape>
-                        <button type="button" class="btn btn-primary btn-sm float-end">Pesquisar</button>
+                        <button type="button" class="btn btn-primary btn-sm float-end"
+                            @click="pesquisar()">Pesquisar</button>
                     </template>
 
                 </card-component>
@@ -36,7 +37,12 @@
                 <!-- inicio card listagem de marcas -->
                 <card-component titulo="Relacao de marcas">
                     <template v-slot:conteudo>
-                        <table-component :dados="marcas.data" :titulos="{
+                        <table-component 
+                        :dados="marcas.data"
+                        :visualizar="{ visivel: true , dataToggle: 'modal' , dataTarget: '#modalMarcaVisualizar' }"
+                        :atualizar="true"
+                        :remover="true"
+                        :titulos="{
                             id: { titulo: 'ID', tipo: 'text' },
                             nome: { titulo: 'Nome', tipo: 'text' },
                             imagem: { titulo: 'Imagem', tipo: 'imagem' },
@@ -47,9 +53,9 @@
                         <div class="row">
                             <div class="col-10">
                                 <paginate-component>
-                                    <li v-for="l, key in marcas.links" :key="key" :class="l.active ? 'page-item active' : 'page-item'"
-                                        @click="paginacao(l)">
-                                        <a class="page-link"  v-html="l.label"></a>
+                                    <li v-for="l, key in marcas.links" :key="key"
+                                        :class="l.active ? 'page-item active' : 'page-item'" @click="paginacao(l)">
+                                        <a class="page-link" v-html="l.label"></a>
                                     </li>
 
                                 </paginate-component>
@@ -68,7 +74,7 @@
         <!-- inicio modal -->
         <!-- Button trigger modal -->
 
-        <!-- Modal -->
+        <!-- Modal inclusao de marcas -->
         <modal-component id="modalMarca" titulo="Adicionar marca">
 
             <template v-slot:alertas>
@@ -103,7 +109,18 @@
             </template>
 
         </modal-component>
-        <!-- fim modal -->
+        <!-- fim Modal inclusao de marcas -->
+        <!-- inicio Modal visualizar  marca -->
+        <modal-component id="modalMarcaVisualizar" titulo="Visualizar marca">
+            <template v-slot:alertas></template>
+            <template v-slot:conteudo>
+                teste
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </template>
+        </modal-component>
+        <!-- fim Modal visualizar  marca -->
 
     </div>
 </template>
@@ -124,24 +141,59 @@ export default {
     data() {
         return {
             urlbase: 'http://localhost/app_locadora_carros/public/api/v1/marca',
+            urlPaginacao: '',
+            urlFiltro: '',
             nomeMarca: '',
             arquivoImagem: [],
             transacaoStatus: '',
             transacaoDetalhes: {},
             marcas: {
                 data: []
+            },
+            busca: {
+                nome: '',
+                id: ''
             }
+
         }
     },
     methods: {
+        pesquisar() {
+            console.log(this.busca)
+            let filtro = ''
+
+            for (let chave in this.busca) {
+
+                if (this.busca[chave]) {
+
+                    if (filtro != '') {
+                        filtro += ';'
+                    }
+                    filtro += chave + ':like:' + this.busca[chave]
+                }
+
+            }
+            if (filtro != '') {
+                this.urlPaginacao = 'page=1'
+                this.urlFiltro = '&filtro=' + filtro
+            }else
+            {
+                this.urlFiltro = ''
+            }
+            this.carregarLista()
+
+        },
 
         paginacao(l) {
             if (l.url) {
-                this.urlbase = l.url
+                this.urlPaginacao = l.url.split('?')[1]
+
                 this.carregarLista()
             }
         },
         carregarLista() {
+
+            let url = this.urlbase + '?' + this.urlPaginacao + this.urlFiltro
 
             let config = {
                 headers: {
@@ -150,7 +202,7 @@ export default {
                 }
             }
 
-            axios.get(this.urlbase, config)
+            axios.get(url, config)
                 .then(response => {
                     this.marcas = response.data
                     console.log(this.marcas)
