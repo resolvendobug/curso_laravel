@@ -37,17 +37,16 @@
                 <!-- inicio card listagem de marcas -->
                 <card-component titulo="Relacao de marcas">
                     <template v-slot:conteudo>
-                        <table-component 
-                        :dados="marcas.data"
-                        :visualizar="{ visivel: true , dataToggle: 'modal' , dataTarget: '#modalMarcaVisualizar' }"
-                        :atualizar="true"
-                        :remover="true"
-                        :titulos="{
-                            id: { titulo: 'ID', tipo: 'text' },
-                            nome: { titulo: 'Nome', tipo: 'text' },
-                            imagem: { titulo: 'Imagem', tipo: 'imagem' },
-                            created_at: { titulo: 'Data de criação', tipo: 'data' },
-                        }"></table-component>
+                        <table-component :dados="marcas.data"
+                            :visualizar="{ visivel: true, dataToggle: 'modal', dataTarget: '#modalMarcaVisualizar' }"
+                            :atualizar="{ visivel: true, dataToggle: 'modal', dataTarget: '#modalMarcaAtualizar' }"
+                            :remover="{ visivel: true, dataToggle: 'modal', dataTarget: '#modalMarcaRemover' }"
+                            :titulos="{
+                                id: { titulo: 'ID', tipo: 'text' },
+                                nome: { titulo: 'Nome', tipo: 'text' },
+                                imagem: { titulo: 'Imagem', tipo: 'imagem' },
+                                created_at: { titulo: 'Data de criação', tipo: 'data' },
+                            }"></table-component>
                     </template>
                     <template v-slot:rodape>
                         <div class="row">
@@ -114,13 +113,94 @@
         <modal-component id="modalMarcaVisualizar" titulo="Visualizar marca">
             <template v-slot:alertas></template>
             <template v-slot:conteudo>
-                teste
+
+                <input-container-component titulo="ID">
+                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Nome da marca">
+                    <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Imagem">
+                    <img :src="'/app_locadora_carros/public/storage/' + $store.state.item.imagem"
+                        v-if="$store.state.item.imagem" alt="">
+                </input-container-component>
+
+                <input-container-component titulo="Data de criação">
+                    <input type="text" class="form-control" :value="$store.state.item.created_at" disabled>
+                </input-container-component>
+
+
             </template>
             <template v-slot:rodape>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </template>
         </modal-component>
         <!-- fim Modal visualizar  marca -->
+
+        <!-- inicio Modal remoçao  marca -->
+        <modal-component id="modalMarcaRemover" titulo="Remover marca">
+            <template v-slot:alertas>
+                <alert-component tipo="success" titulo="Transação realizada com sucesso"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
+            </template>
+            <template v-slot:conteudo v-if="$store.state.transacao.status != 'sucesso'">
+
+                <input-container-component titulo="ID">
+                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                </input-container-component>
+
+                <input-container-component titulo="Nome da marca">
+                    <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+                </input-container-component>
+
+
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-danger" @click="remover()"
+                    v-if="$store.state.transacao.status != 'sucesso'">Remover</button>
+            </template>
+        </modal-component>
+        <!-- fim Modal remoção  marca -->
+
+        <!-- Modal atualizacao de marcas -->
+        <modal-component id="modalMarcaAtualizar" titulo="Atualizar marca">
+
+            <template v-slot:alertas>
+               
+            </template>
+
+            <template v-slot:conteudo>
+                <div class="form-group">
+                    <input-container-component titulo="Nome da marca" id="atualizarNome" id-help="novoNomeHelp"
+                        texto-ajuda="Informe o nome da marca">
+                        <input type="text" class="form-control" id="atualizarNome" aria-describedby="novoNomeHelp"
+                            v-model="nomeMarca" placeholder="Nome da marca">
+                    </input-container-component>
+                    
+                </div>
+
+                <div class="form-group">
+                    <input-container-component titulo="Imagem" id="atualizarImagem" id-help="novoImagemHelp"
+                        texto-ajuda="Selecione uma imagem">
+                        <input type="file" class="form-control-file" id="atualizarImagem" aria-describedby="novoImagemHelp"
+                            placeholder="Seleciona uma imagem" @change="carregarImagem($event)">
+                    </input-container-component>
+                    
+                </div>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" @click="atualizar()">Atualizar</button>
+            </template>
+
+        </modal-component>
+        <!-- fim Modal atualizacao de marcas -->
 
     </div>
 </template>
@@ -158,6 +238,45 @@ export default {
         }
     },
     methods: {
+        atualizar(){
+           console.log(this.$store.state.item)
+        },
+        remover() {
+
+            let confirmacao = confirm('Tem certeza que deseja remover a marca?')
+            if (!confirmacao) {
+                return false;
+            }
+
+            let url = this.urlbase + '/' + this.$store.state.item.id
+
+            let formData = new FormData();
+            formData.append('_method', 'DELETE')
+
+            let config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': this.token
+                }
+            }
+
+
+
+            axios.post(url, formData, config)
+                .then(response => {
+                    this.$store.state.transacao.status = 'sucesso'
+                    this.$store.state.transacao.mensagem = response.data.msg
+
+                    this.carregarLista()
+                })
+                .catch(error => {
+                    this.$store.state.transacao.status = 'erro'
+                    this.$store.state.transacao.mensagem = error.response.data.error
+                })
+
+            console.log('chegmos aki  ')
+        },
+
         pesquisar() {
             console.log(this.busca)
             let filtro = ''
@@ -176,8 +295,7 @@ export default {
             if (filtro != '') {
                 this.urlPaginacao = 'page=1'
                 this.urlFiltro = '&filtro=' + filtro
-            }else
-            {
+            } else {
                 this.urlFiltro = ''
             }
             this.carregarLista()
