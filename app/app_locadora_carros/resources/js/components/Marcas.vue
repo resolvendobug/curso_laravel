@@ -90,7 +90,7 @@
                         <input type="text" class="form-control" id="novoNome" aria-describedby="novoNomeHelp"
                             v-model="nomeMarca" placeholder="Nome da marca">
                     </input-container-component>
-                    {{ nomeMarca }}
+                    
                 </div>
 
                 <div class="form-group">
@@ -172,7 +172,11 @@
         <modal-component id="modalMarcaAtualizar" titulo="Atualizar marca">
 
             <template v-slot:alertas>
-               
+                <alert-component tipo="success" titulo="Transação realizada com sucesso"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" titulo="Erro na transação" :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'erro'"></alert-component>
             </template>
 
             <template v-slot:conteudo>
@@ -180,19 +184,20 @@
                     <input-container-component titulo="Nome da marca" id="atualizarNome" id-help="novoNomeHelp"
                         texto-ajuda="Informe o nome da marca">
                         <input type="text" class="form-control" id="atualizarNome" aria-describedby="novoNomeHelp"
-                            v-model="nomeMarca" placeholder="Nome da marca">
+                            v-model="$store.state.item.nome" placeholder="Nome da marca">
                     </input-container-component>
-                    
+
                 </div>
 
                 <div class="form-group">
                     <input-container-component titulo="Imagem" id="atualizarImagem" id-help="novoImagemHelp"
                         texto-ajuda="Selecione uma imagem">
-                        <input type="file" class="form-control-file" id="atualizarImagem" aria-describedby="novoImagemHelp"
-                            placeholder="Seleciona uma imagem" @change="carregarImagem($event)">
+                        <input type="file" class="form-control-file" id="atualizarImagem"
+                            aria-describedby="novoImagemHelp" placeholder="Seleciona uma imagem"
+                            @change="carregarImagem($event)">
                     </input-container-component>
-                    
                 </div>
+                {{ $store.state.item.nome }}
             </template>
             <template v-slot:rodape>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -207,17 +212,7 @@
 
 <script>
 export default {
-    computed: {
-        token() {
-            let token = document.cookie.split(';').find(indice => {
-                return indice.includes('token=')
-            })
-            token = token.split('=')[1]
-            token = 'Bearer ' + token
-            return token
-        }
-
-    },
+ 
     data() {
         return {
             urlbase: 'http://localhost/app_locadora_carros/public/api/v1/marca',
@@ -238,8 +233,38 @@ export default {
         }
     },
     methods: {
-        atualizar(){
-           console.log(this.$store.state.item)
+        atualizar() {
+
+            let url = this.urlbase + '/' + this.$store.state.item.id
+
+            let config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    
+                }
+            }
+
+            let formData = new FormData();
+            formData.append('_method', 'PATCH')
+            formData.append('nome', this.$store.state.item.nome)
+            if (this.arquivoImagem[0]) {
+                formData.append('imagem', this.arquivoImagem[0])
+            }
+
+            axios.post(url, formData, config)
+                .then(response => {
+                    this.$store.state.transacao.status = 'sucesso'
+                    this.$store.state.transacao.mensagem = 'Registro de marca atualizado com sucesso'
+                    atualizarImagem.value = '';
+                    this.carregarLista()
+                })
+                .catch(error => {
+                    this.$store.state.transacao.status = 'erro'
+                    this.$store.state.transacao.mensagem = error.response.data.message
+                    this.$store.state.transacao.dados = error.response.data.error
+                })
+
+
         },
         remover() {
 
@@ -253,16 +278,16 @@ export default {
             let formData = new FormData();
             formData.append('_method', 'DELETE')
 
-            let config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': this.token
-                }
-            }
+            // let config = {
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': this.token
+            //     }
+            // }
 
 
 
-            axios.post(url, formData, config)
+            axios.post(url, formData)
                 .then(response => {
                     this.$store.state.transacao.status = 'sucesso'
                     this.$store.state.transacao.mensagem = response.data.msg
@@ -313,14 +338,14 @@ export default {
 
             let url = this.urlbase + '?' + this.urlPaginacao + this.urlFiltro
 
-            let config = {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': this.token
-                }
-            }
+            // let config = {
+            //     headers: {
+            //         'Accept': 'application/json',
+            //         'Authorization': this.token
+            //     }
+            // }
 
-            axios.get(url, config)
+            axios.get(url)
                 .then(response => {
                     this.marcas = response.data
                     console.log(this.marcas)
@@ -343,8 +368,7 @@ export default {
             let config = {
                 headers: {
                     'content-type': 'multipart/form-data',
-                    'Accept': 'application/json',
-                    'Authorization': this.token
+       
                 }
             }
 
