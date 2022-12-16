@@ -38,6 +38,12 @@ services:
     networks:
       - web-dev
 
+# redis
+  redis:
+    image: redis:latest
+    networks: 
+      - web-dev
+      
 networks:
   web-dev:
     driver: bridge
