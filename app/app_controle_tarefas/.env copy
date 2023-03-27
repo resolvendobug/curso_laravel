@@ -27,10 +27,10 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 
 MAIL_MAILER=smtp
-MAIL_HOST=mail.resolvendobug.com.br
+MAIL_HOST=
 MAIL_PORT=465
-MAIL_USERNAME=contato@resolvendobug.com.br
-MAIL_PASSWORD=Chiclete2311@
+MAIL_USERNAME=
+MAIL_PASSWORD=
 MAIL_ENCRYPTION=ssl
 MAIL_FROM_ADDRESS=contato@resolvendobug.com.br
 MAIL_FROM_NAME="${APP_NAME}"
